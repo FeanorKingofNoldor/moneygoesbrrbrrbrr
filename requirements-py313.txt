@@ -1,0 +1,12 @@
+# Let pip find compatible versions for Python 3.13
+fear-greed-index
+yfinance
+pandas
+numpy
+python-dotenv
+beautifulsoup4
+requests
+lxml
+schedule
+sqlalchemy
+redis
