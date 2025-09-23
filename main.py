@@ -29,7 +29,7 @@ def main():
     ║           ODIN SYSTEM             ║
     ║  Optimized Data Intelligence      ║
     ║          Network v1.0             ║
-    ╚═══════════════════════════════════════╝
+    ╚═══════════════════════════════════╝
     """
     )
 
