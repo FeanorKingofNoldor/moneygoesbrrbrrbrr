@@ -5,8 +5,10 @@ SQLite for development, PostgreSQL for production
 
 import sqlite3
 import pandas as pd
+import os
 from datetime import datetime
 from typing import List, Dict, Optional
+from config.settings import DATABASE_PATH
 
 
 class OdinDatabase:
@@ -15,8 +17,20 @@ class OdinDatabase:
     Using SQLite for now (auto-creates file)
     """
     
-    def __init__(self, db_path: str = "odin_dev.db"):
-        self.db_path = db_path
+    def __init__(self, db_path=None):
+        """Initialize database connection"""
+        if db_path:
+            self.db_path = db_path
+        else:
+            # Try multiple locations
+            if os.path.exists("odin.db"):
+                self.db_path = "odin.db"
+            elif os.path.exists("../odin.db"):
+                self.db_path = "../odin.db"
+            else:
+                # Create in current directory
+                self.db_path = "odin.db"
+        
         self.conn = None
         self.setup_database()
     

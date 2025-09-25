@@ -21,38 +21,51 @@ class IBKRPortfolioConnector:
     Connects to IBKR and fetches real portfolio data
     """
     
-    def __init__(self, host='127.0.0.1', port=4001, client_id=1):
+    def __init__(self, host=None, port=None, client_id=None):
         """
         Initialize IBKR connection
         
         Args:
-            host: IB Gateway host (default localhost)
-            port: 4001 for live, 4002 for paper trading
-            client_id: Unique client ID (1-32)
+            host: IB Gateway host (None = use config default)
+            port: 4001 for live, 4002 for paper trading (None = use config default)
+            client_id: Unique client ID 1-32 (None = use config default)
         """
+        # Import config settings
+        from config.settings import (
+            IBKR_HOST,
+            IBKR_DEFAULT_PORT,
+            IBKR_CLIENT_ID,
+            IBKR_CACHE_TIMEOUT
+        )
+        
         if not IB_AVAILABLE:
             raise ImportError("ib_async library not available. Install with: pip install ib_async")
         
-        self.host = host
-        self.port = port
-        self.client_id = client_id
+        # Use config defaults if not specified
+        self.host = host if host is not None else IBKR_HOST
+        self.port = port if port is not None else IBKR_DEFAULT_PORT
+        self.client_id = client_id if client_id is not None else IBKR_CLIENT_ID
+        
         self.ib = IB()
         self.connected = False
         
-        # Cache to avoid excessive API calls
+        # Cache settings from config
         self._cache = {}
-        self._cache_timeout = 60  # 60 seconds
+        self._cache_timeout = IBKR_CACHE_TIMEOUT
         self._last_update = None
-    
+        
     async def connect(self):
         """Connect to IB Gateway/TWS"""
         try:
             await self.ib.connectAsync(self.host, self.port, self.client_id)
             self.connected = True
-            print(f"✓ Connected to IBKR on {self.host}:{self.port}")
+            
+            # Determine connection type for logging
+            connection_type = "LIVE" if self.port == 4001 else "PAPER"
+            print(f"✓ Connected to IBKR ({connection_type}) on {self.host}:{self.port}")
             return True
         except Exception as e:
-            print(f"✗ Failed to connect to IBKR: {e}")
+            print(f"✗ Failed to connect to IBKR on {self.host}:{self.port}: {e}")
             print("Make sure IB Gateway is running and configured properly")
             self.connected = False
             return False
@@ -72,7 +85,9 @@ class IBKRPortfolioConnector:
         """Check if cache is still valid"""
         if not self._last_update:
             return False
-        return (datetime.now() - self._last_update).seconds < self._cache_timeout
+        
+        elapsed = (datetime.now() - self._last_update).total_seconds()
+        return elapsed < self._cache_timeout
     
     async def get_portfolio_positions(self) -> List[Dict]:
         """

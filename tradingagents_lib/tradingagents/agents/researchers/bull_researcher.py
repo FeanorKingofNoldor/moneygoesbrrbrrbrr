@@ -22,25 +22,38 @@ def create_bull_researcher(llm, memory):
         for i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
-        prompt = f"""You are a Bull Analyst advocating for investing in the stock. Your task is to build a strong, evidence-based case emphasizing growth potential, competitive advantages, and positive market indicators. Leverage the provided research and data to address concerns and counter bearish arguments effectively.
+        prompt = f"""You are a Bull Analyst advocating for a 3-10 DAY POSITION TRADE in the stock. Build an evidence-based case emphasizing near-term catalysts and technical momentum that could drive price within your trading window.
 
-Key points to focus on:
-- Growth Potential: Highlight the company's market opportunities, revenue projections, and scalability.
-- Competitive Advantages: Emphasize factors like unique products, strong branding, or dominant market positioning.
-- Positive Indicators: Use financial health, industry trends, and recent positive news as evidence.
-- Bear Counterpoints: Critically analyze the bear argument with specific data and sound reasoning, addressing concerns thoroughly and showing why the bull perspective holds stronger merit.
-- Engagement: Present your argument in a conversational style, engaging directly with the bear analyst's points and debating effectively rather than just listing data.
+        Position Trading Bull Focus:
+        - Near-term catalysts: Events within 10 days that could spike price
+        - Technical breakouts: Volume-confirmed moves above resistance
+        - Momentum acceleration: RSI rising, MACD crossing, volume expanding
+        - Short squeeze potential: High short interest with positive catalyst
+        - Sector rotation: Money flowing into this sector NOW, not eventually
 
-Resources available:
-Market research report: {market_research_report}
-Social media sentiment report: {sentiment_report}
-Latest world affairs news: {news_report}
-Company fundamentals report: {fundamentals_report}
-Conversation history of the debate: {history}
-Last bear argument: {current_response}
-Reflections from similar situations and lessons learned: {past_memory_str}
-Use this information to deliver a compelling bull argument, refute the bear's concerns, and engage in a dynamic debate that demonstrates the strengths of the bull position. You must also address reflections and learn from lessons and mistakes you made in the past.
-"""
+        Key points for position trades (not investments):
+        - Growth Potential: Next 10 days only - earnings, FDA approvals, product launches
+        - Technical Setup: Clear breakout levels with volume, oversold bounces in uptrends
+        - Sentiment Shifts: Social media momentum building, unusual options activity
+        - Risk/Reward: Show why 2:1 or better reward vs 2.5x ATR stop
+        - Bear Counterpoints: Address why waiting means missing the move
+
+        Avoid these investment arguments (irrelevant for 10-day trades):
+        - Long-term competitive advantages
+        - 5-year growth projections  
+        - Management quality
+        - Fundamental valuation metrics
+
+        Resources available:
+        Market research report: {market_research_report}
+        Social media sentiment report: {sentiment_report}
+        Latest world affairs news: {news_report}
+        Company fundamentals report: {fundamentals_report}
+        Conversation history: {history}
+        Last bear argument: {current_response}
+        Past lessons learned: {past_memory_str}
+
+        Focus on why THIS WEEK is the time to buy, not why it's a good company. Address the bear's concerns about near-term risks, not long-term value. Remember you're advocating for a trade that will be closed within 10 days maximum."""
 
         response = llm.invoke(prompt)
 

@@ -19,19 +19,40 @@ def create_safe_debator(llm):
 
         trader_decision = state["trader_investment_plan"]
 
-        prompt = f"""As the Safe/Conservative Risk Analyst, your primary objective is to protect assets, minimize volatility, and ensure steady, reliable growth. You prioritize stability, security, and risk mitigation, carefully assessing potential losses, economic downturns, and market volatility. When evaluating the trader's decision or plan, critically examine high-risk elements, pointing out where the decision may expose the firm to undue risk and where more cautious alternatives could secure long-term gains. Here is the trader's decision:
+        prompt = f"""As the Safe/Conservative Risk Analyst for 3-10 DAY POSITION TRADES, prioritize capital preservation while seeking mean reversion opportunities in oversold conditions. Here is the trader's decision:
 
-{trader_decision}
+        {trader_decision}
 
-Your task is to actively counter the arguments of the Risky and Neutral Analysts, highlighting where their views may overlook potential threats or fail to prioritize sustainability. Respond directly to their points, drawing from the following data sources to build a convincing case for a low-risk approach adjustment to the trader's decision:
+        Position Trading Conservative Perspective:
+        - Only buy extreme oversold (RSI(2) < 10) with clear support
+        - Require tight stops (2x ATR maximum) to preserve capital
+        - Target modest gains (3-5%) with high probability
+        - Avoid momentum chasing in extended markets
+        - Wait for fear regimes where risk/reward improves dramatically
 
-Market Research Report: {market_research_report}
-Social Media Sentiment Report: {sentiment_report}
-Latest World Affairs Report: {news_report}
-Company Fundamentals Report: {fundamentals_report}
-Here is the current conversation history: {history} Here is the last response from the risky analyst: {current_risky_response} Here is the last response from the neutral analyst: {current_neutral_response}. If there are no responses from the other viewpoints, do not halluncinate and just present your point.
+        Your Arguments Should Focus On:
+        - Why the risky analyst ignores that most breakouts fail
+        - How chasing momentum in greed regimes leads to buying tops
+        - Why waiting for extreme oversold provides 65%+ win rates
+        - Volume exhaustion patterns that signal reversals
 
-Engage by questioning their optimism and emphasizing the potential downsides they may have overlooked. Address each of their counterpoints to showcase why a conservative stance is ultimately the safest path for the firm's assets. Focus on debating and critiquing their arguments to demonstrate the strength of a low-risk strategy over their approaches. Output conversationally as if you are speaking without any special formatting."""
+        Counter their optimism by emphasizing:
+        - Current extension from moving averages
+        - Declining breadth despite price rises
+        - Overhead resistance levels
+        - Upcoming catalysts that could gap against position
+
+        Data Sources:
+        Market Research Report: {market_research_report}
+        Social Media Sentiment Report: {sentiment_report}
+        Latest World Affairs Report: {news_report}
+        Company Fundamentals Report: {fundamentals_report}
+
+        Current debate: {history}
+        Risky response: {current_risky_response}
+        Neutral response: {current_neutral_response}
+
+        Show why patience and discipline beat aggression in position trading. Output conversationally without special formatting."""
 
         response = llm.invoke(prompt)
 

@@ -1,0 +1,35 @@
+2025-09-25 19:30:22,281 - numexpr.utils - INFO - NumExpr defaulting to 16 threads.
+
+    ╔═══════════════════════════════════╗
+    ║           ODIN SYSTEM             ║
+    ║  Optimized Data Intelligence      ║
+    ║          Network v1.0             ║
+    ╚═══════════════════════════════════╝
+    
+
+Initializing components...
+Loaded OpenAI key ending in: PbFqRQL9oA
+Traceback (most recent call last):
+  File "/home/feanor/coding_projects/moneygoesbrrbrrbrr/main.py", line 232, in <module>
+    main()
+    ~~~~^^
+  File "/home/feanor/coding_projects/moneygoesbrrbrrbrr/main.py", line 48, in main
+    batch_processor = TradingAgentsBatchProcessor(database)  # Now MAY include patterns if available
+  File "/home/feanor/coding_projects/moneygoesbrrbrrbrr/src/batch/tradingagents_batch_processor.py", line 97, in __init__
+    self.tradingagents = OdinTradingAgentsWrapper(
+                         ~~~~~~~~~~~~~~~~~~~~~~~~^
+        odin_database=odin_database,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        use_ibkr=False,  # Set to True when IB Gateway is running
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ibkr_port=4002,  # Paper trading port
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/feanor/coding_projects/moneygoesbrrbrrbrr/src/tradingagents/wrapper.py", line 346, in __init__
+    self.graph = TradingAgentsGraph(debug=True, config=self.config)
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/feanor/coding_projects/moneygoesbrrbrrbrr/tradingagents_lib/tradingagents/graph/trading_graph.py", line 56, in __init__
+    os.path.join(self.config["project_dir"], "dataflows/data_cache"),
+                 ~~~~~~~~~~~^^^^^^^^^^^^^^^
+KeyError: 'project_dir'

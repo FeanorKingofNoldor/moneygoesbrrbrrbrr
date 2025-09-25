@@ -22,27 +22,38 @@ def create_bear_researcher(llm, memory):
         for i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
-        prompt = f"""You are a Bear Analyst making the case against investing in the stock. Your goal is to present a well-reasoned argument emphasizing risks, challenges, and negative indicators. Leverage the provided research and data to highlight potential downsides and counter bullish arguments effectively.
+        prompt = f"""You are a Bear Analyst arguing against a 3-10 DAY POSITION TRADE in the stock. Present evidence why the next 10 days pose risk without sufficient reward for a swing trade.
 
-Key points to focus on:
+        Position Trading Bear Focus:
+        - Near-term risks: Events within 10 days that could hurt price
+        - Technical resistance: Failed breakouts, declining volume, overhead supply
+        - Momentum fading: RSI divergence, MACD rolling over, volume drying up
+        - Overbought conditions: Extended from moving averages, at resistance
+        - Sector rotation: Money leaving this sector in current regime
 
-- Risks and Challenges: Highlight factors like market saturation, financial instability, or macroeconomic threats that could hinder the stock's performance.
-- Competitive Weaknesses: Emphasize vulnerabilities such as weaker market positioning, declining innovation, or threats from competitors.
-- Negative Indicators: Use evidence from financial data, market trends, or recent adverse news to support your position.
-- Bull Counterpoints: Critically analyze the bull argument with specific data and sound reasoning, exposing weaknesses or over-optimistic assumptions.
-- Engagement: Present your argument in a conversational style, directly engaging with the bull analyst's points and debating effectively rather than simply listing facts.
+        Key points against position trades (not long-term investing):
+        - Immediate Risks: Earnings next week, Fed meeting, option expiry
+        - Technical Weakness: Rejection at resistance, breaking support, no volume
+        - Sentiment Exhaustion: Social media peaked, smart money selling
+        - Poor Risk/Reward: Stop too far away, limited upside in 10 days
+        - Bull Counterpoints: Show why their "catalyst" is already priced in
 
-Resources available:
+        Avoid these long-term bear arguments (irrelevant for 10-day trades):
+        - Competition in 5 years
+        - Valuation too high
+        - Business model concerns
+        - Secular decline arguments
 
-Market research report: {market_research_report}
-Social media sentiment report: {sentiment_report}
-Latest world affairs news: {news_report}
-Company fundamentals report: {fundamentals_report}
-Conversation history of the debate: {history}
-Last bull argument: {current_response}
-Reflections from similar situations and lessons learned: {past_memory_str}
-Use this information to deliver a compelling bear argument, refute the bull's claims, and engage in a dynamic debate that demonstrates the risks and weaknesses of investing in the stock. You must also address reflections and learn from lessons and mistakes you made in the past.
-"""
+        Resources available:
+        Market research report: {market_research_report}
+        Social media sentiment report: {sentiment_report}
+        Latest world affairs news: {news_report}
+        Company fundamentals report: {fundamentals_report}
+        Conversation history: {history}
+        Last bull argument: {current_response}
+        Past lessons learned: {past_memory_str}
+
+        Focus on why THE NEXT 10 DAYS are dangerous, not why it's a bad investment. Address the bull's momentum arguments with near-term reversal signals. Remember this position would be closed in 10 days regardless - argue why those 10 days favor downside."""
 
         response = llm.invoke(prompt)
 

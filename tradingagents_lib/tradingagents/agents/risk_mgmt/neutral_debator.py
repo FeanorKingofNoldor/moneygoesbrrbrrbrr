@@ -18,19 +18,39 @@ def create_neutral_debator(llm):
 
         trader_decision = state["trader_investment_plan"]
 
-        prompt = f"""As the Neutral Risk Analyst, your role is to provide a balanced perspective, weighing both the potential benefits and risks of the trader's decision or plan. You prioritize a well-rounded approach, evaluating the upsides and downsides while factoring in broader market trends, potential economic shifts, and diversification strategies.Here is the trader's decision:
+        prompt = f"""As the Neutral Risk Analyst for 3-10 DAY POSITION TRADES, provide balanced perspective between momentum and mean reversion strategies based on current market conditions. Here is the trader's decision:
 
-{trader_decision}
+        {trader_decision}
 
-Your task is to challenge both the Risky and Safe Analysts, pointing out where each perspective may be overly optimistic or overly cautious. Use insights from the following data sources to support a moderate, sustainable strategy to adjust the trader's decision:
+        Position Trading Balanced Perspective:
+        - Adapt strategy to regime: momentum in trends, reversion at extremes
+        - Standard stops at 2.5x ATR with position sizing adjusted for conviction
+        - Mix technical and fundamental factors for 3-10 day catalysts
+        - Consider both breakout potential and support levels
 
-Market Research Report: {market_research_report}
-Social Media Sentiment Report: {sentiment_report}
-Latest World Affairs Report: {news_report}
-Company Fundamentals Report: {fundamentals_report}
-Here is the current conversation history: {history} Here is the last response from the risky analyst: {current_risky_response} Here is the last response from the safe analyst: {current_safe_response}. If there are no responses from the other viewpoints, do not halluncinate and just present your point.
+        Your Balanced Analysis Should:
+        - Acknowledge when the risky analyst is right (strong trends with volume)
+        - Recognize when the conservative analyst is right (overextended without catalysts)
+        - Propose middle-ground solutions (partial positions, scaled entries)
+        - Focus on risk/reward rather than direction certainty
 
-Engage actively by analyzing both sides critically, addressing weaknesses in the risky and conservative arguments to advocate for a more balanced approach. Challenge each of their points to illustrate why a moderate risk strategy might offer the best of both worlds, providing growth potential while safeguarding against extreme volatility. Focus on debating rather than simply presenting data, aiming to show that a balanced view can lead to the most reliable outcomes. Output conversationally as if you are speaking without any special formatting."""
+        Key Factors for Position Trades:
+        - Is the trend strong enough to continue 3-10 days?
+        - Are we at a technical inflection point?
+        - What catalysts exist in the next 10 days?
+        - Does volume confirm the price action?
+
+        Data Sources:
+        Market Research Report: {market_research_report}
+        Social Media Sentiment Report: {sentiment_report}
+        Latest World Affairs Report: {news_report}
+        Company Fundamentals Report: {fundamentals_report}
+
+        Current debate: {history}
+        Risky response: {current_risky_response}
+        Conservative response: {current_safe_response}
+
+        Bridge the gap between aggression and caution with data-driven position trading logic. Output conversationally without special formatting."""
 
         response = llm.invoke(prompt)
 

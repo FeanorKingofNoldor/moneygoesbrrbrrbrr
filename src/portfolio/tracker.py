@@ -327,3 +327,70 @@ class PositionTracker:
         ))
         
         self.db.commit()
+
+    def close_position_with_pattern_learning(self, position_id: int, exit_price: float, 
+                                            exit_reason: str, pattern_wrapper=None):
+        """
+        Close position and trigger pattern learning
+        Enhanced to inject both trade and pattern memories
+        """
+        # Get position data
+        position = self.conn.execute("""
+            SELECT * FROM position_tracking WHERE id = ?
+        """, (position_id,)).fetchone()
+        
+        if not position:
+            return False
+        
+        # Calculate P&L
+        position_data = dict(position)
+        position_data['exit_price'] = exit_price
+        position_data['exit_reason'] = exit_reason
+        position_data['exit_date'] = datetime.now().date()
+        position_data['pnl_percent'] = ((exit_price - position_data['entry_price']) / 
+                                        position_data['entry_price'] * 100)
+        position_data['holding_days'] = (position_data['exit_date'] - 
+                                        position_data['entry_date']).days
+        
+        # Update database
+        self.conn.execute("""
+            UPDATE position_tracking 
+            SET exit_date = ?, exit_price = ?, exit_reason = ?,
+                holding_days = ?, pnl_percent = ?, pnl_dollars = ?
+            WHERE id = ?
+        """, (
+            position_data['exit_date'],
+            exit_price,
+            exit_reason,
+            position_data['holding_days'],
+            position_data['pnl_percent'],
+            position_data['pnl_percent'] * position_data['position_value'] / 100,
+            position_id
+        ))
+        self.conn.commit()
+        
+        # ENHANCED: Inject memories if pattern system available
+        if pattern_wrapper and position_data.get('pattern_id'):
+            try:
+                # Update pattern performance
+                pattern_wrapper.tracker.track_exit(
+                    position_data['pattern_id'],
+                    position_data
+                )
+                
+                # Get updated pattern stats
+                pattern_stats = pattern_wrapper.pattern_db.get_pattern_stats(
+                    position_data['pattern_id']
+                )
+                
+                # Inject both trade and pattern memories
+                if pattern_stats:
+                    pattern_wrapper.memory_injector.inject_closed_position_memories(
+                        position_data, pattern_stats
+                    )
+                    logger.info(f"Injected hybrid memories for {position_data['symbol']}")
+                    
+            except Exception as e:
+                logger.warning(f"Pattern memory injection failed: {e}")
+        
+        return True

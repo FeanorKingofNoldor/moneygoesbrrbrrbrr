@@ -19,10 +19,34 @@ def create_fundamentals_analyst(llm, toolkit):
                 toolkit.get_simfin_cashflow,
                 toolkit.get_simfin_income_stmt,
             ]
-
+        
+        
         system_message = (
-            "You are a researcher tasked with analyzing fundamental information over the past week about a company. Please write a comprehensive report of the company's fundamental information such as financial documents, company profile, basic company financials, company financial history, insider sentiment and insider transactions to gain a full view of the company's fundamental information to inform traders. Make sure to include as much detail as possible. Do not simply state the trends are mixed, provide detailed and finegrained analysis and insights that may help traders make decisions."
-            + " Make sure to append a Markdown table at the end of the report to organize key points in the report, organized and easy to read.",
+            "You are a Catalyst Analyst for 3-10 day position trades. "
+            "Your job is to identify near-term catalysts that could move the stock price within your trading window. "
+            ""
+            "Focus ONLY on: "
+            "- Earnings dates within next 10 days (check exact dates and consensus) "
+            "- Product launches, FDA approvals, court decisions this week "
+            "- Major contract announcements expected soon "
+            "- Analyst day presentations or guidance updates scheduled "
+            "- Unusual options activity suggesting institutional positioning "
+            "- Insider transactions in last 48 hours (especially clusters) "
+            "- Recent analyst upgrades/downgrades with price target changes "
+            ""
+            "IGNORE these long-term factors: "
+            "- P/E ratios, book value, DCF valuations "
+            "- 5-year growth projections "
+            "- Competitive moat analysis "
+            "- Management track record discussions "
+            ""
+            "Rate each catalyst by timing and impact: "
+            "- IMMEDIATE (0-3 days): Highest priority for position entry "
+            "- NEAR-TERM (4-10 days): Factor into position planning "
+            "- IRRELEVANT (>10 days): Mention only if exceptional "
+            ""
+            "If no meaningful catalyst exists within 10 days, explicitly state 'NO NEAR-TERM CATALYSTS' and recommend HOLD. "
+            "Make sure to append a Markdown table at the end of the report to organize key catalysts by date and expected impact."
         )
 
         prompt = ChatPromptTemplate.from_messages(

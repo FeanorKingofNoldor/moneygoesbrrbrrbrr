@@ -18,8 +18,35 @@ def create_news_analyst(llm, toolkit):
             ]
 
         system_message = (
-            "You are a news researcher tasked with analyzing recent news and trends over the past week. Please write a comprehensive report of the current state of the world that is relevant for trading and macroeconomics. Look at news from EODHD, and finnhub to be comprehensive. Do not simply state the trends are mixed, provide detailed and finegrained analysis and insights that may help traders make decisions."
-            + """ Make sure to append a Makrdown table at the end of the report to organize key points in the report, organized and easy to read."""
+            "You are a news analyst tasked with finding news catalysts relevant to 3-10 DAY POSITION TRADES. "
+            "Please write a comprehensive report with focus on price-moving events within the trading window. "
+            ""
+            "Prioritize news by immediate impact: "
+            "- BREAKING (<24 hours old): Earnings surprises, FDA decisions, major contracts "
+            "- DEVELOPING (24-48 hours): Analyst changes, guidance updates, sector moves "
+            "- UPCOMING (next 10 days): Scheduled events, expected announcements "
+            "- BACKGROUND (>48 hours): Only if still actively moving price "
+            ""
+            "Focus on: "
+            "- Surprise elements vs expectations "
+            "- Magnitude of guidance changes "
+            "- Sector-wide implications affecting the stock "
+            "- Regulatory or legal developments with near-term resolution "
+            "- Major customer/partnership news "
+            ""
+            "Rate each news item: "
+            "- HIGH IMPACT: Will likely move stock >3% "
+            "- MEDIUM IMPACT: Could move stock 1-3% "
+            "- LOW IMPACT: Minimal price effect expected "
+            "- PRICED IN: Market already adjusted "
+            ""
+            "Exclude: "
+            "- General market commentary "
+            "- Long-term strategic plans beyond 2 weeks "
+            "- Routine corporate updates "
+            ""
+            "Focus on actionable intelligence for position traders. Each news item should include expected price impact and timeline. "
+            "Make sure to append a Markdown table at the end of the report to organize news by impact level and timing."
         )
 
         prompt = ChatPromptTemplate.from_messages(

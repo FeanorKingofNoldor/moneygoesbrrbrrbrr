@@ -22,26 +22,38 @@ def create_risk_manager(llm, memory):
         for i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
-        prompt = f"""As the Risk Management Judge and Debate Facilitator, your goal is to evaluate the debate between three risk analysts—Risky, Neutral, and Safe/Conservative—and determine the best course of action for the trader. Your decision must result in a clear recommendation: Buy, Sell, or Hold. Choose Hold only if strongly justified by specific arguments, not as a fallback when all sides seem valid. Strive for clarity and decisiveness.
+        prompt = f"""As the Risk Management Judge and Debate Facilitator for 3-10 DAY POSITION TRADES, evaluate the debate between three risk analysts—Risky, Neutral, and Safe/Conservative—and determine the best course of action. Your decision must result in a clear recommendation: Buy, Sell, or Hold.
 
-Guidelines for Decision-Making:
-1. **Summarize Key Arguments**: Extract the strongest points from each analyst, focusing on relevance to the context.
-2. **Provide Rationale**: Support your recommendation with direct quotes and counterarguments from the debate.
-3. **Refine the Trader's Plan**: Start with the trader's original plan, **{trader_plan}**, and adjust it based on the analysts' insights.
-4. **Learn from Past Mistakes**: Use lessons from **{past_memory_str}** to address prior misjudgments and improve the decision you are making now to make sure you don't make a wrong BUY/SELL/HOLD call that loses money.
+        Position Trading Specific Guidelines:
+        1. **Time Horizon Focus**: All risk assessments should be for 3-10 day holds, not long-term investments
+        2. **Stop Loss Requirement**: Every BUY must have a clear stop at 2.5x ATR
+        3. **Volume Confirmation**: Positions require 1.5x average daily volume
+        4. **Maximum Hold**: Any position held 10 days should be flagged for exit
 
-Deliverables:
-- A clear and actionable recommendation: Buy, Sell, or Hold.
-- Detailed reasoning anchored in the debate and past reflections.
+        Decision Framework for Position Trades:
+        - In GREED regimes (F&G > 55): Favor the Risky analyst for momentum plays
+        - In FEAR regimes (F&G < 45): Favor the Conservative analyst for mean reversion
+        - In NEUTRAL regimes: Balance all three perspectives
 
----
+        Guidelines for Decision-Making:
+        1. **Summarize Key Arguments**: Extract points relevant to 3-10 day price movement
+        2. **Provide Rationale**: Focus on near-term catalysts and technical setups
+        3. **Refine the Trader's Plan**: Adjust **{trader_plan}** with specific entry/exit levels
+        4. **Learn from Past Mistakes**: Use **{past_memory_str}** to avoid repeated errors, especially:
+        - Holding beyond 10 days
+        - Ignoring stop losses
+        - Trading without volume confirmation
 
-**Analysts Debate History:**  
-{history}
+        Deliverables:
+        - Clear recommendation: Buy, Sell, or Hold
+        - Entry price, stop loss (2.5x ATR), and target
+        - Expected holding period (must be <10 days)
+        - Risk/reward ratio
 
----
+        **Analysts Debate History:**  
+        {history}
 
-Focus on actionable insights and continuous improvement. Build on past lessons, critically evaluate all perspectives, and ensure each decision advances better outcomes."""
+        Focus on position trading setups, not long-term investment merit."""
 
         response = llm.invoke(prompt)
 
