@@ -31,13 +31,24 @@ class OdinRegimeDetector:
         self.cnn_client = CNNFearGreedIndex()  # Our custom scraper
         self.cache = {}
         self.cache_duration = CACHE_DURATION
+        self._last_regime = None  # Cache the complete regime
+        self._last_regime_time = 0
 
-    def get_current_regime(self) -> Dict:
+    def get_current_regime(self, force_refresh: bool = False) -> Dict:
         """
         Main method - returns complete regime analysis
+        
+        Args:
+            force_refresh: If True, bypass cache and fetch fresh data
         """
-        # Get Fear & Greed (with caching)
-        fg_data = self._get_fear_greed_cached()
+        # Check if we have a recent cached regime (unless forced refresh)
+        if not force_refresh and self._last_regime:
+            if time.time() - self._last_regime_time < self.cache_duration:
+                print("Using cached regime data")
+                return self._last_regime.copy()  # Return a copy to prevent mutations
+
+        # Get Fear & Greed (with its own caching)
+        fg_data = self._get_fear_greed_cached(force_refresh)
 
         # Get VIX for confirmation
         vix = self._get_vix()
@@ -48,23 +59,30 @@ class OdinRegimeDetector:
         # Add metadata
         regime.update(
             {
-                "fear_greed_value": fg_data["value"],
+                "fear_greed_value": int(fg_data["value"]),  # Round for display
                 "fear_greed_text": fg_data.get("text", ""),
-                "vix": vix,
+                "vix": round(vix, 2),
                 "timestamp": datetime.now().isoformat(),
             }
         )
 
+        # Cache the complete regime
+        self._last_regime = regime
+        self._last_regime_time = time.time()
+
         return regime
 
-    def _get_fear_greed_cached(self) -> Dict:
+    def _get_fear_greed_cached(self, force_refresh: bool = False) -> Dict:
         """
         Fetch CNN Fear & Greed with caching
+        
+        Args:
+            force_refresh: If True, bypass cache
         """
         cache_key = "fear_greed"
 
-        # Check cache
-        if cache_key in self.cache:
+        # Check cache (unless forced refresh)
+        if not force_refresh and cache_key in self.cache:
             cached_time = self.cache[cache_key]["timestamp"]
             if time.time() - cached_time < self.cache_duration:
                 print(f"Using cached Fear & Greed data")
@@ -74,6 +92,8 @@ class OdinRegimeDetector:
         try:
             print("Fetching fresh CNN Fear & Greed...")
             data = self.cnn_client.get_fear_and_greed_index()
+            
+            print(f"Successfully fetched CNN F&G: {data.get('value', 'Unknown')}")
 
             # Cache it
             self.cache[cache_key] = {"data": data, "timestamp": time.time()}
@@ -82,16 +102,34 @@ class OdinRegimeDetector:
 
         except Exception as e:
             print(f"Error fetching CNN Fear & Greed: {e}")
+            
+            # Try to use stale cache if available
+            if cache_key in self.cache:
+                print("Using stale cached data due to fetch error")
+                return self.cache[cache_key]["data"]
+            
             print("Falling back to VIX-based regime")
             return self._vix_fallback_regime()
 
     def _get_vix(self) -> float:
         """
-        Get current VIX level
+        Get current VIX level with caching
         """
+        cache_key = "vix"
+        
+        # Check cache
+        if cache_key in self.cache:
+            cached_time = self.cache[cache_key]["timestamp"]
+            if time.time() - cached_time < self.cache_duration:
+                return self.cache[cache_key]["value"]
+        
         try:
             vix = yf.Ticker("^VIX")
-            return vix.info["regularMarketPrice"]
+            value = vix.info["regularMarketPrice"]
+            
+            # Cache it
+            self.cache[cache_key] = {"value": value, "timestamp": time.time()}
+            return value
         except:
             return 20.0  # Default to normal if unavailable
 
@@ -154,3 +192,12 @@ class OdinRegimeDetector:
             regime_dict["volatility_regime"] = "normal"
 
         return regime_dict
+
+    def clear_cache(self):
+        """
+        Clear all cached data - useful for testing or forcing refresh
+        """
+        self.cache = {}
+        self._last_regime = None
+        self._last_regime_time = 0
+        print("Regime detector cache cleared")
