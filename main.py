@@ -22,6 +22,8 @@ from src.filtering.filter import OdinFilter
 from src.batch.tradingagents_batch_processor import TradingAgentsBatchProcessor
 from src.portfolio.tracker import PositionTracker
 from src.feedback.observer import PerformanceObserver
+from config.settings import PATTERN_WEEKLY_ANALYSIS_DAY
+
 
 
 def main():
@@ -216,7 +218,7 @@ def main():
         observer.print_observation_summary()
         
         # ADD: Weekly pattern analysis on Sundays (if available)
-        if datetime.now().weekday() == 6:  # Sunday
+        if datetime.now().weekday() == PATTERN_WEEKLY_ANALYSIS_DAY:
             print("\n9. Weekly Pattern Analysis...")
             try:
                 pattern_results = batch_processor.run_weekly_pattern_analysis()

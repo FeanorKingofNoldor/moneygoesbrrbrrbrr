@@ -6,6 +6,12 @@ Classifies trades into patterns based on market conditions and technical indicat
 import logging
 from typing import Dict, Optional, Tuple
 from datetime import datetime
+from config.settings import (
+    PATTERN_RSI_THRESHOLDS,
+    PATTERN_VOLUME_THRESHOLDS,
+    PATTERN_FEAR_GREED_THRESHOLDS,
+    PATTERN_STRATEGY_TYPES
+)
 
 logger = logging.getLogger(__name__)
 
@@ -24,21 +30,9 @@ class PatternClassifier:
         
         # Define classification thresholds
         self.thresholds = {
-            'rsi': {
-                'oversold': 30,
-                'overbought': 70
-            },
-            'volume': {
-                'low': 0.7,
-                'high': 1.5,
-                'explosive': 2.5
-            },
-            'fear_greed': {
-                'extreme_fear': 25,
-                'fear': 45,
-                'neutral': 55,
-                'greed': 75
-            }
+            'rsi': PATTERN_RSI_THRESHOLDS,
+            'volume': PATTERN_VOLUME_THRESHOLDS,
+            'fear_greed': PATTERN_FEAR_GREED_THRESHOLDS
         }
     
     def classify_trade(self, stock_metrics: Dict, regime_data: Dict) -> Dict:

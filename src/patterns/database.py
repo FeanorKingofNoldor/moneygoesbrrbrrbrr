@@ -9,6 +9,13 @@ import logging
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 import pandas as pd
+from config.settings import (
+    PATTERN_CONFIDENCE_THRESHOLDS,
+    PATTERN_RECENT_TRADES_WINDOW,
+    PATTERN_MOMENTUM_THRESHOLD,
+    PATTERN_BREAKING_THRESHOLD,
+    PATTERN_STALE_DAYS
+)
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +150,7 @@ class PatternDatabase:
             recent_trades = current['recent_trades'] or []
             recent_trades.append(trade_result['pnl_percent'])
             if len(recent_trades) > 20:
-                recent_trades = recent_trades[-20:]
+                recent_trades = returns[-PATTERN_RECENT_TRADES_WINDOW:]
             
             # Calculate recent metrics
             recent_wins = sum(1 for t in recent_trades if t > 0)
@@ -154,9 +161,9 @@ class PatternDatabase:
             momentum_score = recent_win_rate - win_rate
             
             # Determine confidence level
-            if total_trades >= 50:
+            if total_trades >= PATTERN_CONFIDENCE_THRESHOLDS['high']:
                 confidence_level = 'high'
-            elif total_trades >= 20:
+            elif total_trades >= PATTERN_CONFIDENCE_THRESHOLDS['medium']:
                 confidence_level = 'medium'
             else:
                 confidence_level = 'low'
@@ -191,7 +198,7 @@ class PatternDatabase:
             self.conn.commit()
             
             # Log significant changes
-            if abs(momentum_score) > 0.15:
+            if abs(momentum_score) > PATTERN_MOMENTUM_THRESHOLD:
                 logger.info(f"Pattern {pattern_id} showing significant momentum: {momentum_score:.2f}")
             
             return True

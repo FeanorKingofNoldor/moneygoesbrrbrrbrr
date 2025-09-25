@@ -13,6 +13,10 @@ from src.patterns import (
     PatternDatabase,
     PatternMemoryInjector
 )
+from config.settings import (
+    PATTERN_MEMORY_BATCH_SIZE,
+    PATTERN_MIN_TRADES_FOR_MEMORY
+)
 from src.patterns.analyzer import PatternAnalyzer
 
 logger = logging.getLogger(__name__)
@@ -201,7 +205,10 @@ def initialize_pattern_memories(self, min_trades: int = 10):
     logger.info("Initializing TradingAgents-compatible pattern memories")
     
     # Get patterns with sufficient history
-    patterns = self.pattern_db.get_top_patterns(limit=50, min_trades=min_trades)
+    patterns = self.pattern_db.get_top_patterns(
+    limit=PATTERN_MEMORY_BATCH_SIZE, 
+    min_trades=PATTERN_MIN_TRADES_FOR_MEMORY
+)
     
     if patterns:
         # Get current market data for context

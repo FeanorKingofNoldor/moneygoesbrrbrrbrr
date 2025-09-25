@@ -7,6 +7,27 @@ import logging
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
 import json
+from config.settings import (
+    PATTERN_MIN_TRADES_FOR_ANALYSIS,
+    PATTERN_LOOKBACK_DAYS,
+    PATTERN_STOP_MULTIPLIERS,
+    PATTERN_POSITION_SIZE_MULTIPLIERS,
+    PATTERN_CACHE_TIMEOUT,
+    PATTERN_CACHE_CLEAN_INTERVAL,
+    PATTERN_BREAKDOWN_MIN_TRADES,
+    PATTERN_BREAKDOWN_WIN_RATE,
+    PATTERN_HOT_MIN_TRADES,
+    PATTERN_HOT_WIN_RATE,
+    PATTERN_HOT_RECENT_WIN,
+    PATTERN_HOT_MOMENTUM,
+    PATTERN_COLD_RECENT_WIN,
+    PATTERN_GOOD_EXPECTANCY,
+    PATTERN_BAD_EXPECTANCY,
+    PATTERN_MOMENTUM_STRONG_UP,
+    PATTERN_MOMENTUM_UP,
+    PATTERN_MOMENTUM_STRONG_DOWN,
+    PATTERN_MOMENTUM_DOWN
+)
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +46,7 @@ class PatternTracker:
         
         # Cache for frequently accessed patterns
         self._cache = {}
-        self._cache_timeout = 300  # 5 minutes
+        self._cache_timeout = PATTERN_CACHE_TIMEOUT
         self._last_cache_clear = datetime.now()
     
     def track_entry(self, pattern_id: str, entry_data: Dict) -> bool:
@@ -162,29 +183,29 @@ class PatternTracker:
         if stats['confidence_level'] == 'low':
             return f"Low confidence - only {stats['total_trades']} trades. Use standard position sizing."
         
-        if stats['recent_win_rate'] > 0.70 and stats['momentum_score'] > 0.1:
+        if stats['recent_win_rate'] > PATTERN_HOT_RECENT_WIN and stats['momentum_score'] > PATTERN_HOT_MOMENTUM:
             return f"HOT pattern - {stats['recent_win_rate']:.0%} recent win rate. Consider larger position."
-        
-        if stats['recent_win_rate'] < 0.35:
+
+        if stats['recent_win_rate'] < PATTERN_COLD_RECENT_WIN:
             return f"COLD pattern - only {stats['recent_win_rate']:.0%} recent wins. Reduce size or skip."
-        
-        if stats['expectancy'] > 0.02:
+
+        if stats['expectancy'] > PATTERN_GOOD_EXPECTANCY:
             return f"Profitable pattern - {stats['expectancy']:.2%} expected value. Proceed with confidence."
-        
-        if stats['expectancy'] < -0.01:
+
+        if stats['expectancy'] < PATTERN_BAD_EXPECTANCY:
             return f"Losing pattern - {stats['expectancy']:.2%} expected loss. Consider avoiding."
         
         return f"Neutral pattern - {stats['win_rate']:.0%} win rate. Use standard approach."
     
     def _describe_momentum(self, momentum_score: float) -> str:
         """Convert momentum score to description"""
-        if momentum_score > 0.15:
+        if momentum_score > PATTERN_MOMENTUM_STRONG_UP:
             return 'strongly_improving'
-        elif momentum_score > 0.05:
+        elif momentum_score > PATTERN_MOMENTUM_UP:
             return 'improving'
-        elif momentum_score < -0.15:
+        elif momentum_score < PATTERN_MOMENTUM_STRONG_DOWN:
             return 'strongly_declining'
-        elif momentum_score < -0.05:
+        elif momentum_score < PATTERN_MOMENTUM_DOWN:
             return 'declining'
         else:
             return 'stable'
@@ -195,12 +216,10 @@ class PatternTracker:
         if not stats:
             return
         
-        # Alert on pattern breakdown
-        if stats['total_trades'] >= 20 and stats['recent_win_rate'] < 0.30:
+        if stats['total_trades'] >= PATTERN_BREAKDOWN_MIN_TRADES and stats['recent_win_rate'] < PATTERN_BREAKDOWN_WIN_RATE:
             logger.warning(f"PATTERN BREAKDOWN: {pattern_id} win rate collapsed to {stats['recent_win_rate']:.0%}")
-        
-        # Alert on pattern emergence
-        elif stats['total_trades'] >= 10 and stats['recent_win_rate'] > 0.80:
+
+        elif stats['total_trades'] >= PATTERN_HOT_MIN_TRADES and stats['recent_win_rate'] > PATTERN_HOT_WIN_RATE:
             logger.info(f"HOT PATTERN: {pattern_id} showing {stats['recent_win_rate']:.0%} recent wins")
     
     def get_pattern_report(self, regime: Optional[str] = None) -> Dict:
@@ -279,6 +298,6 @@ class PatternTracker:
     def _clean_cache(self):
         """Periodically clean old cache entries"""
         now = datetime.now()
-        if (now - self._last_cache_clear).seconds > 3600:  # Every hour
+        if (now - self._last_cache_clear).seconds > PATTERN_CACHE_CLEAN_INTERVAL:
             self._cache.clear()
             self._last_cache_clear = now

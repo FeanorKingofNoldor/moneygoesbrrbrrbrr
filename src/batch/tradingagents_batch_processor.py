@@ -17,7 +17,12 @@ import logging
 from src.data.database import OdinDatabase
 from src.portfolio.constructor import PortfolioConstructor
 from src.portfolio.tracker import PositionTracker
-from src.tradingagents.wrapper import OdinTradingAgentsWrapper
+from src.tradingagents.coordinator import OdinTradingAgentsCoordinator
+from config.settings import (
+    IBKR_ENABLED,
+    IBKR_DEFAULT_PORT,
+    PATTERN_LEARNING_TRIGGER,
+)
 
 # ADD: Pattern system imports (only if they exist)
 try:
@@ -94,11 +99,14 @@ class TradingAgentsBatchProcessor:
 
     def __init__(self, odin_database: OdinDatabase):
         self.db = odin_database
+        
+        # Use settings instead of hardcoding
         self.tradingagents = OdinTradingAgentsWrapper(
             odin_database=odin_database,
-            use_ibkr=False,  # Set to True when IB Gateway is running
-            ibkr_port=4002,  # Paper trading port
+            use_ibkr=IBKR_ENABLED,      # From settings (True)
+            ibkr_port=IBKR_DEFAULT_PORT  # From settings (4002 for paper)
         )
+        
         self.portfolio_constructor = PortfolioConstructor(self.db.conn)
         self.position_tracker = PositionTracker(self.db.conn)
         
@@ -258,7 +266,7 @@ class TradingAgentsBatchProcessor:
         if self.pattern_wrapper:
             try:
                 completed_trades = self._get_completed_trade_count()
-                if completed_trades > 0 and completed_trades % 20 == 0:
+                if completed_trades > 0 and completed_trades % PATTERN_LEARNING_TRIGGER == 0:
                     logger.info(f"Triggering pattern learning after {completed_trades} trades")
                     self.pattern_wrapper.run_pattern_learning(frequency='daily')
             except Exception as e:
