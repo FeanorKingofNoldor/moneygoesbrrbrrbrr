@@ -275,6 +275,7 @@ class OdinTradingAgentsWrapper:
         # Import config settings
         from config.settings import (
             TRADINGAGENTS_CONFIG,
+            TRADINGAGENTS_LIB_PATH,
             IBKR_ENABLED,
             IBKR_DEFAULT_PORT,
             ENV_FILE_PATH,
@@ -325,6 +326,9 @@ class OdinTradingAgentsWrapper:
         
         # Get config from settings - use centralized configuration
         self.config = TRADINGAGENTS_CONFIG.copy()
+        
+        # FIX: Add the missing project_dir that TradingAgents needs
+        self.config['project_dir'] = str(TRADINGAGENTS_LIB_PATH)
         
         # Allow runtime overrides if needed (backward compatibility)
         self.config.update({
